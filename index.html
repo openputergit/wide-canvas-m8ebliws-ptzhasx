@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPL Match Predictions</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .cricket-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .predict-btn:active {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+        .team-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="cricket-bg min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="bg-blue-900 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">IPL Predictions</h1>
+            <div class="space-x-4">
+                <a href="#" class="hover:text-blue-300" onclick="showUserSection()">User Portal</a>
+                <a href="#" class="hover:text-blue-300" onclick="showAdminSection()">Admin Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- User Section -->
+    <div id="userSection" class="container mx-auto p-4">
+        <div class="bg-black bg-opacity-50 rounded-lg p-6 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Upcoming Matches</h2>
+            <div id="matchesList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <!-- Matches will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="adminSection" class="container mx-auto p-4 hidden">
+        <div class="bg-black bg-opacity-50 rounded-lg p-6">
+            <h2 class="text-3xl font-bold mb-6">Admin Panel</h2>
+            <form id="matchForm" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2">Team 1</label>
+                        <select id="team1" class="w-full p-2 rounded bg-gray-800" required>
+                            <option value="">Select Team</option>
+                            <option value="CSK">Chennai Super Kings</option>
+                            <option value="MI">Mumbai Indians</option>
+                            <option value="RCB">Royal Challengers Bangalore</option>
+                            <!-- Add more teams -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2">Team 2</label>
+                        <select id="team2" class="w-full p-2 rounded bg-gray-800" required>
+                            <option value="">Select Team</option>
+                            <option value="CSK">Chennai Super Kings</option>
+                            <option value="MI">Mumbai Indians</option>
+                            <option value="RCB">Royal Challengers Bangalore</option>
+                            <!-- Add more teams -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2">Match Date</label>
+                        <input type="date" id="matchDate" class="w-full p-2 rounded bg-gray-800" required>
+                    </div>
+                    <div>
+                        <label class="block mb-2">Match Time</label>
+                        <input type="time" id="matchTime" class="w-full p-2 rounded bg-gray-800" required>
+                    </div>
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded font-bold">
+                    Add Match
+                </button>
+            </form>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-bold mb-4">User Predictions</h3>
+                <div id="predictionsList" class="space-y-4">
+                    <!-- Predictions will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample match data (In real implementation, this would come from an API)
+        let matches = [
+            {
+                id: 1,
+                team1: "CSK",
+                team2: "MI",
+                date: "2024-03-20",
+                time: "19:30"
+            },
+            {
+                id: 2,
+                team1: "RCB",
+                team2: "CSK",
+                date: "2024-03-22",
+                time: "19:30"
+            }
+        ];
+
+        // Sample predictions data
+        let predictions = [];
+
+        function showUserSection() {
+            document.getElementById('userSection').classList.remove('hidden');
+            document.getElementById('adminSection').classList.add('hidden');
+        }
+
+        function showAdminSection() {
+            document.getElementById('userSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.remove('hidden');
+        }
+
+        function renderMatches() {
+            const matchesList = document.getElementById('matchesList');
+            matchesList.innerHTML = matches.map(match => `
+                <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="text-center">
+                            <img src="https://via.placeholder.com/50" alt="${match.team1}" class="team-logo mx-auto">
+                            <p class="mt-2">${match.team1}</p>
+                        </div>
+                        <div class="text-xl font-bold">VS</div>
+                        <div class="text-center">
+                            <img src="https://via.placeholder.com/50" alt="${match.team2}" class="team-logo mx-auto">
+                            <p class="mt-2">${match.team2}</p>
+                        </div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <p class="text-sm text-gray-400">${match.date} at ${match.time}</p>
+                    </div>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="predict(${match.id}, '${match.team1}')" 
+                                class="predict-btn bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                            ${match.team1}
+                        </button>
+                        <button onclick="predict(${match.id}, '${match.team2}')" 
+                                class="predict-btn bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                            ${match.team2}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function predict(matchId, team) {
+            predictions.push({
+                matchId,
+                team,
+                userId: 'user123', // In real implementation, this would be actual user ID
+                timestamp: new Date().toISOString()
+            });
+            alert(`Prediction submitted for ${team}!`);
+            renderPredictions();
+        }
+
+        function renderPredictions() {
+            const predictionsList = document.getElementById('predictionsList');
+            predictionsList.innerHTML = predictions.map(pred => `
+                <div class="bg-gray-800 rounded p-3">
+                    <p>Match ID: ${pred.matchId}</p>
+                    <p>Predicted Team: ${pred.team}</p>
+                    <p class="text-sm text-gray-400">User: ${pred.userId}</p>
+                    <p class="text-sm text-gray-400">Time: ${new Date(pred.timestamp).toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        // Handle match form submission
+        document.getElementById('matchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newMatch = {
+                id: matches.length + 1,
+                team1: document.getElementById('team1').value,
+                team2: document.getElementById('team2').value,
+                date: document.getElementById('matchDate').value,
+                time: document.getElementById('matchTime').value
+            };
+            matches.push(newMatch);
+            renderMatches();
+            e.target.reset();
+        });
+
+        // Initial render
+        renderMatches();
+        renderPredictions();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
